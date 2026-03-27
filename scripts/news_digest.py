@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Daily News Digest Bot
-RSS fetch → Gemini 2.5 Flash (~10-min content per region) → HTML email via 163 SMTP
+RSS fetch → Llama 3.3 70B (~10-min content per region) → HTML email via 163 SMTP
 """
 
 import os
@@ -15,16 +15,16 @@ from zoneinfo import ZoneInfo
 
 import feedparser
 import requests
+from openai import OpenAI
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────────
-GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
-GEMINI_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-2.5-flash"
-    f"?key={GEMINI_API_KEY}"
+NVIDIA_API_KEY = os.environ["NVIDIA_API_KEY"]
+llama_client = OpenAI(
+    base_url="https://integrate.api.nvidia.com/v1",
+    api_key=NVIDIA_API_KEY
 )
 SMTP_HOST     = os.environ.get("SMTP_HOST", "smtp.163.com")
 SMTP_PORT     = int(os.environ.get("SMTP_PORT", "465"))
@@ -129,19 +129,16 @@ def fetch_headlines(sources: list[dict], max_per: int = 6) -> list[dict]:
     return items
 
 
-def call_gemini(prompt: str) -> str:
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.75, "maxOutputTokens": 8192},
-    }
-    resp = requests.post(GEMINI_URL, json=payload, timeout=180)
-    resp.raise_for_status()
-    data = resp.json()
-    try:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError) as exc:
-        log.error(f"Gemini unexpected response: {data}")
-        raise RuntimeError("Gemini parse error") from exc
+def call_llama(prompt: str) -> str:
+    completion = llama_client.chat.completions.create(
+        model="meta/llama-3.3-70b-instruct",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.75,
+        top_p=0.7,
+        max_tokens=4096,
+        stream=False
+    )
+    return completion.choices[0].message.content
 
 
 def generate_section(region: dict, date_str: str) -> str:
@@ -152,8 +149,8 @@ def generate_section(region: dict, date_str: str) -> str:
         f"[{h['source']}] {h['title']}\n  概要: {h['summary']}" for h in headlines
     )
     prompt = region["prompt"].format(date=date_str, headlines=hl_text)
-    log.info(f"  ⚡ Gemini generating {region['label']}...")
-    return call_gemini(prompt)
+    log.info(f"  ⚡ Llama generating {region['label']}...")
+    return call_llama(prompt)
 
 # ── Email HTML ────────────────────────────────────────────────────────────────
 
@@ -202,7 +199,7 @@ body{{margin:0;padding:0;background:#eef1f7;font-family:'PingFang SC','Hiragino 
   </div>
   <div class="toc"><b>📋 今日版块</b><ul>{toc}</ul></div>
   {body}
-  <div class="foot">Powered by Gemini 2.5 Flash · GitHub Actions · {date_str}</div>
+  <div class="foot">Powered by Llama 3.3 70B · GitHub Actions · {date_str}</div>
 </div>
 </body>
 </html>"""
