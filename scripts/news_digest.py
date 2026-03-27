@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-2.5-flash-preview-04-17:generateContent"
+    "gemini-2.5-flash"
     f"?key={GEMINI_API_KEY}"
 )
 SMTP_HOST     = os.environ.get("SMTP_HOST", "smtp.163.com")
