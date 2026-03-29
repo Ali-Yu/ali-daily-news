@@ -39,7 +39,7 @@ REGIONS = [
         "key": "china",
         "label": "🇨🇳 中国",
         "sources": [
-            {"name": "新华网",       "url": "http://www.xinhuanet.com/politics/news_politics.xml"},
+            {"name": "中新网-要闻", "url": "http://www.chinanews.com/rss/scroll-news.xml"},
             {"name": "中国数字时代", "url": "https://chinadigitaltimes.net/chinese/feed/"},
         ],
         "prompt": (
