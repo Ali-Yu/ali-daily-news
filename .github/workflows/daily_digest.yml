@@ -26,7 +26,7 @@ jobs:
 
       - name: Run News Digest
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SMTP_USER:      ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD:  ${{ secrets.SMTP_PASSWORD }}
           TO_EMAIL:       ${{ secrets.TO_EMAIL }}
