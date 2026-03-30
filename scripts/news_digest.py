@@ -28,8 +28,8 @@ llama_client = OpenAI(
 )
 SMTP_HOST     = os.environ.get("SMTP_HOST", "smtp.163.com")
 SMTP_PORT     = int(os.environ.get("SMTP_PORT", "465"))
-SMTP_USER     = os.environ["SMTP_USER"]        # 163邮箱地址
-SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]    # 163邮箱授权码（非登录密码）
+SMTP_USER     = os.environ["SMTP_USER"]
+SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
 TO_EMAIL      = os.environ["TO_EMAIL"]
 CST           = ZoneInfo("Asia/Shanghai")
 
@@ -39,7 +39,6 @@ REGIONS = [
         "key": "china",
         "label": "🇨🇳 中国",
         "sources": [
-            {"name": "中新网-要闻", "url": "http://www.chinanews.com/rss/scroll-news.xml"},
             {"name": "中国数字时代", "url": "https://chinadigitaltimes.net/chinese/feed/"},
         ],
         "prompt": (
